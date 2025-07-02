@@ -44,7 +44,7 @@ import (
 const (
 	ControllerName = "mustgather-controller"
 
-	defaultMustGatherNamespace = "openshift-must-gather-operator"
+	defaultMustGatherNamespace = "must-gather-operator"
 )
 
 var log = logf.Log.WithName(ControllerName)
@@ -202,40 +202,40 @@ func (r *MustGatherReconciler) Reconcile(ctx context.Context, request reconcile.
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// look up user secret and copy it to operator namespace
-			secretName := instance.Spec.CaseManagementAccountSecretRef.Name
-			userSecret := &corev1.Secret{}
-			err = r.GetClient().Get(context.TODO(), types.NamespacedName{
-				Namespace: instance.Namespace,
-				Name:      secretName,
-			}, userSecret)
-			if err != nil {
-				log.Info(fmt.Sprintf("Error getting secret (%s)!", instance.Spec.CaseManagementAccountSecretRef.Name))
-				return reconcile.Result{}, err
-			}
+			// secretName := instance.Spec.CaseManagementAccountSecretRef.Name
+			// userSecret := &corev1.Secret{}
+			// err = r.GetClient().Get(context.TODO(), types.NamespacedName{
+			// 	Namespace: instance.Namespace,
+			// 	Name:      secretName,
+			// }, userSecret)
+			// if err != nil {
+			// 	log.Info(fmt.Sprintf("Error getting secret (%s)!", instance.Spec.CaseManagementAccountSecretRef.Name))
+			// 	return reconcile.Result{}, err
+			// }
 
 			// create secret in the operator namespace
-			newSecret := &corev1.Secret{}
-			err = r.GetClient().Get(context.TODO(), types.NamespacedName{
-				Namespace: operatorNs,
-				Name:      secretName,
-			}, newSecret)
-			if err != nil {
-				if errors.IsNotFound(err) {
-					newSecret.Name = secretName
-					newSecret.Namespace = operatorNs
-					newSecret.Data = userSecret.Data
-					newSecret.Type = userSecret.Type
-					err = r.GetClient().Create(context.TODO(), newSecret)
-					if err != nil {
-						log.Error(err, fmt.Sprintf("Error creating new secret %s", secretName))
-						return reconcile.Result{}, err
-					}
-				} else {
-					log.Error(err, fmt.Sprintf("Error getting new secret %s", secretName))
-					return reconcile.Result{}, err
-				}
-			}
-			log.Info(fmt.Sprintf("Secret %s already exists in the %s namespace", secretName, operatorNs))
+			// newSecret := &corev1.Secret{}
+			// err = r.GetClient().Get(context.TODO(), types.NamespacedName{
+			// 	Namespace: operatorNs,
+			// 	Name:      secretName,
+			// }, newSecret)
+			// if err != nil {
+			// 	if errors.IsNotFound(err) {
+			// 		newSecret.Name = secretName
+			// 		newSecret.Namespace = operatorNs
+			// 		newSecret.Data = userSecret.Data
+			// 		newSecret.Type = userSecret.Type
+			// 		err = r.GetClient().Create(context.TODO(), newSecret)
+			// 		if err != nil {
+			// 			log.Error(err, fmt.Sprintf("Error creating new secret %s", secretName))
+			// 			return reconcile.Result{}, err
+			// 		}
+			// 	} else {
+			// 		log.Error(err, fmt.Sprintf("Error getting new secret %s", secretName))
+			// 		return reconcile.Result{}, err
+			// 	}
+			// }
+			// log.Info(fmt.Sprintf("Secret %s already exists in the %s namespace", secretName, operatorNs))
 
 			// job is not there, create it.
 			err = r.CreateResourceIfNotExists(context.TODO(), instance, operatorNs, job)

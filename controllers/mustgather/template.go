@@ -2,12 +2,13 @@ package mustgather
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/openshift/must-gather-operator/api/v1alpha1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"strconv"
-	"time"
 )
 
 const (
@@ -49,7 +50,7 @@ func getJobTemplate(operatorImage string, clusterVersion string, mustGather v1al
 			mustGather.Spec.ProxyConfig.HTTPProxy,
 			mustGather.Spec.ProxyConfig.HTTPSProxy,
 			mustGather.Spec.ProxyConfig.NoProxy,
-			mustGather.Spec.CaseManagementAccountSecretRef,
+			// mustGather.Spec.CaseManagementAccountSecretRef,
 		),
 	)
 	return job
@@ -139,7 +140,7 @@ func getUploadContainer(
 	httpProxy string,
 	httpsProxy string,
 	noProxy string,
-	secretKeyRefName corev1.LocalObjectReference,
+	// secretKeyRefName corev1.LocalObjectReference,
 ) corev1.Container {
 	container := corev1.Container{
 		Command: []string{
@@ -160,24 +161,24 @@ func getUploadContainer(
 			},
 		},
 		Env: []corev1.EnvVar{
-			{
-				Name: uploadEnvUsername,
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						Key:                  uploadEnvUsername,
-						LocalObjectReference: secretKeyRefName,
-					},
-				},
-			},
-			{
-				Name: uploadEnvPassword,
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						Key:                  uploadEnvPassword,
-						LocalObjectReference: secretKeyRefName,
-					},
-				},
-			},
+			// {
+			// 	Name: uploadEnvUsername,
+			// 	ValueFrom: &corev1.EnvVarSource{
+			// 		SecretKeyRef: &corev1.SecretKeySelector{
+			// 			Key:                  uploadEnvUsername,
+			// 			LocalObjectReference: secretKeyRefName,
+			// 		},
+			// 	},
+			// },
+			// {
+			// 	Name: uploadEnvPassword,
+			// 	ValueFrom: &corev1.EnvVarSource{
+			// 		SecretKeyRef: &corev1.SecretKeySelector{
+			// 			Key:                  uploadEnvPassword,
+			// 			LocalObjectReference: secretKeyRefName,
+			// 		},
+			// 	},
+			// },
 			{
 				Name:  uploadEnvCaseId,
 				Value: caseId,
