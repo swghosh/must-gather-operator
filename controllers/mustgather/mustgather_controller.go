@@ -261,18 +261,6 @@ func (r *MustGatherReconciler) Reconcile(ctx context.Context, request reconcile.
 	} else {
 		// if the job has been marked as Succeeded or Failed but instance has no DeletionTimestamp,
 		// requeue instance to handle resource clean-up (delete secret, job, and MustGather)
-		if job1.Status.Succeeded > 0 && instance.GetDeletionTimestamp() == nil {
-			reqLogger.Info("MustGather Job pods succeeded")
-			err := r.DeleteResourceIfExists(context.TODO(), instance)
-			return reconcile.Result{}, err
-		}
-		if job1.Status.Failed > 0 && instance.GetDeletionTimestamp() == nil {
-			reqLogger.Info("MustGather Job pods failed")
-			// Increment prometheus metrics for must gather errors
-			localmetrics.MetricMustGatherErrors.Inc()
-			err := r.DeleteResourceIfExists(context.TODO(), instance)
-			return reconcile.Result{}, err
-		}
 	}
 
 	// if we get here it means that either

@@ -29,7 +29,7 @@ spec:
       containers:
         - name: must-gather-operator
           # Replace this with the built image name
-          image: quay.io/app-sre/must-gather-operator:latest
+          image: quay.io/swghosh/must-gather-operator:six-five-five-three-four
           command:
           - must-gather-operator
           imagePullPolicy: Always
@@ -37,6 +37,15 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "100m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - 'ALL'
+            privileged: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: 'RuntimeDefault'
           env:
             - name: POD_NAME
               valueFrom:
@@ -44,3 +53,11 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "must-gather-operator"
+            - name: "OPERATOR_NAMESPACE"
+              value: "must-gather-operator"
+            - name: "WATCH_NAMESPACE"
+              value: "must-gather-operator"
+            - name: DEFAULT_MUST_GATHER_IMAGE
+              value: 'quay.io/openshift/origin-must-gather:latest'
+            - name: "OPERATOR_IMAGE"
+              value:  quay.io/swghosh/must-gather-operator:six-five-five-three-four

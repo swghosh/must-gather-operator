@@ -2,12 +2,13 @@ package mustgather
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/openshift/must-gather-operator/api/v1alpha1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"strconv"
-	"time"
 )
 
 const (
@@ -115,6 +116,8 @@ func getGatherContainer(audit bool, timeout time.Duration, mustGatherImageVersio
 		commandBinary = gatherCommandBinaryNoAudit
 	}
 
+	falsity, truth := false, true
+
 	return corev1.Container{
 		Command: []string{
 			"/bin/bash",
@@ -129,6 +132,19 @@ func getGatherContainer(audit bool, timeout time.Duration, mustGatherImageVersio
 				Name:      outputVolumeName,
 			},
 		},
+		SecurityContext: &corev1.SecurityContext{
+			AllowPrivilegeEscalation: &falsity,
+			Capabilities: &corev1.Capabilities{
+				Drop: []corev1.Capability{
+					"ALL",
+				},
+			},
+			Privileged:   &falsity,
+			RunAsNonRoot: &truth,
+			SeccompProfile: &corev1.SeccompProfile{
+				Type: corev1.SeccompProfileTypeRuntimeDefault,
+			},
+		},
 	}
 }
 
@@ -141,6 +157,8 @@ func getUploadContainer(
 	noProxy string,
 	secretKeyRefName corev1.LocalObjectReference,
 ) corev1.Container {
+	falsity, truth := false, true
+
 	container := corev1.Container{
 		Command: []string{
 			"/bin/bash",
@@ -193,6 +211,19 @@ func getUploadContainer(
 			{
 				Name:  uploadEnvInternalUser,
 				Value: strconv.FormatBool(internalUser),
+			},
+		},
+		SecurityContext: &corev1.SecurityContext{
+			AllowPrivilegeEscalation: &falsity,
+			Capabilities: &corev1.Capabilities{
+				Drop: []corev1.Capability{
+					"ALL",
+				},
+			},
+			Privileged:   &falsity,
+			RunAsNonRoot: &truth,
+			SeccompProfile: &corev1.SeccompProfile{
+				Type: corev1.SeccompProfileTypeRuntimeDefault,
 			},
 		},
 	}
